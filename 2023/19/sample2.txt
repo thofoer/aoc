@@ -1,0 +1,9 @@
+in{x<2001:jjj,x>2002:jjj,www}
+www{m>3999:aaa,jjj}
+aaa{a>3999:bbb,jjj}
+bbb{s>3999:zzz,jjj}
+zzz{A}
+jjj{R}
+
+
+{x=787,m=2655,a=1222,s=2876}
