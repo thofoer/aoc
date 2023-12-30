@@ -1,0 +1,1 @@
+print File.read("input.txt").split("\n\n").map{ |s| s.scan(/[a-z]/).reduce(Set.new){|a,c| a << c} }.sum(&:count)
