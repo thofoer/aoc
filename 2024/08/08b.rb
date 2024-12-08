@@ -13,22 +13,27 @@ def inbounds(c)
   c.real.between?(0,@width-1) && c.imag.between?(0,@height-1)
 end
 
-antinodes = Set.new
+antinodes1 = Set.new
+antinodes2 = Set.new
 
 antennas.values.each do |a|
     a.combination(2) do |x,y|       
        diff = x-y
        f = 0
-       while inbounds(x+f*diff) do
-         antinodes << x+f*diff
+       while inbounds(pos = x + f*diff) do
+         antinodes1 << pos if f==1
+         antinodes2 << pos
          f+=1
        end
        f = 0
-       while inbounds(y-f*diff) do
-         antinodes << y-f*diff
+       while inbounds(pos = y - f*diff) do
+         antinodes1 << pos if f==1
+         antinodes2 << pos
          f+=1
        end       
     end
 end
 
-p antinodes.count
+puts "Part 1: #{antinodes1.count}"
+puts "Part 2: #{antinodes2.count}"
+
