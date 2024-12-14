@@ -21,11 +21,9 @@ end
 @zrange = 0..0
 
 def step(grid)
-
     @xrange = @xrange.min-1..@xrange.max+1
     @yrange = @yrange.min-1..@yrange.max+1
     @zrange = @zrange.min-1..@zrange.max+1
-
 
     coords = @xrange.map{|x| @yrange.map{|y| @zrange.map{|z| Vector[x,y,z]}}}.flatten(2)
     newGrid = Set.new

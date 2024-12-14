@@ -1,4 +1,4 @@
-def input = new File('input2.txt').text.split("\n").collect{ it.split(" -> ").collect{it.split(",").collect{it as Integer}}}
+def input = new File("input2.txt").text.split("\n").collect{ it.split(" -> ").collect{it.split(",").collect{it as Integer}}}
 def vals = input.flatten()
 
 maxWidth = vals.withIndex().findAll {v,i -> (i & 1)==0}.collect{it[0]}.max() * 2

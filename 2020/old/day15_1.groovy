@@ -1,4 +1,4 @@
-input = "0,1,5,10,3,12,19"
+input = "0,3,6"
 max = 2020 //30000000 
 
 lastIndex =null

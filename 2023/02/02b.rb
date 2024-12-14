@@ -4,4 +4,3 @@ print File.read("input.txt").split("\n")
                   a.scan(/(\d+) green/).flatten.map(&:to_i).max *
                   a.scan(/(\d+) blue/) .flatten.map(&:to_i).max                
             }
-

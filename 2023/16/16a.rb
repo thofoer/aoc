@@ -11,7 +11,7 @@ input
     .with_index do |l,y|
         
         l.chomp.each_char.with_index do |c,x| 
-            @grid[Complex(x,y)] = c if c != "."
+            @grid[Complex(x,y)] = c if c != ?.
         end
 end
 

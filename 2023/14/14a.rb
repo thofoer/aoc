@@ -19,8 +19,7 @@ rocks.sort_by{_1[1]}.each do |r|
   y -= 1 while y > 0 && !cubes.include?([x,y-1]) && !rocks.include?([x,y-1])
   rocks.delete(r)
   rocks << [x,y]
-
-  sum += height-y
+  sum += height - y
 end
 
 print sum

@@ -18,7 +18,6 @@ tiles = File.read("input.txt").split("\n\n").map do |p|
     [res, number]
 end.to_h
 
-
 all = Set[* tiles.keys]
 
 adj = tiles.map{|k,v|    

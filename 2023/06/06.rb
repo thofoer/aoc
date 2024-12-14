@@ -9,5 +9,5 @@ def calc(time, dist)
   c
 end
 
-puts races1.map { |t, d| calc(t,d) }.inject(&:*)
-puts races2.map { |t, d| calc(t,d) }.inject(&:*)
+puts races1.map { |t, d| calc(t, d) }.inject(&:*)
+puts races2.map { |t, d| calc(t, d) }.inject(&:*)

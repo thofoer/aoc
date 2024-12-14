@@ -1,4 +1,4 @@
-input = File.read("input.txt").split("\n\n").map{|a| a.split}
+input = File.read("input.txt").split("\n\n").map{ _1.split }
 
 def matches(hashes)
   found = []
@@ -14,10 +14,11 @@ def matches(hashes)
   0
 end
 
+binary = lambda{ |s| s.gsub(?., ?0).gsub(?#, ?1).to_i(2) }
 sum = 0
 input.each do |a|
-  horizontal = a.map{ |i|i.gsub(".","0").gsub("#", "1").to_i(2)}
-  vertical   = a[0].length.times.map {|i| a.map{|x|x[i]}.join}.map{|i| i.gsub(?., ?0).gsub(?#, ?1).to_i(2)}
+  horizontal = a.map(&binary)
+  vertical   = a[0].length.times.map {|i| a.map{|x| x[i]}.join}.map(&binary)
 
   sum += 100 * matches(horizontal) + matches(vertical)
 end

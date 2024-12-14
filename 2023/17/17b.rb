@@ -12,11 +12,7 @@ class State
     def initialize(p, v, d, s)
         @pos, @value, @dir, @step = p, v, d, s
     end
-
-    def to_s
-        "(#@pos) #@value, #@dir, #@step"
-    end
-
+    
     def <=>(other)      
         self.value <=> other.value 
     end

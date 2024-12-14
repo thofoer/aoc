@@ -26,7 +26,6 @@ def replace(n, v)
 end
 
 input.each do |label, op, value|
-
   if op == ?-
     remove label
   else
@@ -38,4 +37,4 @@ input.each do |label, op, value|
   end
 end
 
-print @boxes.map.with_index{|b,i| b.map.with_index{|a,j| (i+1)*(j+1)*a[1]}.sum}.sum
+print @boxes.map.with_index{ |b, i| b.map.with_index{ |a, j| (i+1) * (j+1) * a[1] }.sum }.sum
