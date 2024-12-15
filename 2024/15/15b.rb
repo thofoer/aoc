@@ -42,20 +42,16 @@ dirs.each do |dir|
     delta = DIR[dir]
     n = delta + robot    
     if map[n] == nil 
-        robot = n        
-    elsif map[n] == ?#
-        
+        robot = n                     
     elsif dir == ?< || dir == ?>
-        b = (1..).take_while{ |d| [?[,?]].include?(map[delta*d + robot]) }
-        b = b.reverse
-        b.push 0
+        b = (1..).take_while{ |d| [?[,?]].include?(map[delta*d + robot]) }.reverse << 0        
+        
         unless map[(b.first+1)*delta + robot]
             b.each{|i| map[(i+1)*delta + robot] = map[(i)*delta + robot]}
             robot = n            
         end
-    elsif dir == ?^ || dir == ?v
-        boxes = [Set.new([n, map[n] == ?] ? n-1 : n+1])]
-        i = 1
+    elsif map[n] != ?#
+        boxes = [Set.new([n, map[n] == ?] ? n-1 : n+1])]        
         searching = true
         while searching do            
             line = boxes.last            
@@ -63,23 +59,17 @@ dirs.each do |dir|
             line.each do |c| 
                 check = c+delta
                 newLine << check << (map[check] == ?] ? check-1 : check+1) if map[check] == ?] || map[check] == ?[
-            end
-            i += 1            
-            if  newLine.empty?    
-                searching = false
-            else
-                boxes << newLine
-            end
+            end            
+            boxes << newLine           
+            searching = false if newLine.empty?                                            
         end                        
-        if boxes.all? {_1.all?{|c| map[c+delta] != ?#}}
+        if boxes.all?{ _1.all?{|c| map[c+delta] != ?#}}
             boxes.reverse.each do |c|
                 c.each{|p| map[p+delta] = map[p]; map[p] = nil}
                 robot = n
             end
         end        
-    end
-  #  dump(map, robot)  
- #  gets
+    end  
 end
 
 p map.filter{|k,v| v==?[}.keys.sum{|p| 100*p.imag + p.real }

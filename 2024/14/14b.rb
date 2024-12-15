@@ -19,8 +19,7 @@ z=0
 loop do
    z+=1   
    pos = robots.map{|p,v| z*v + p }
-             .map{|c| Complex(c.real % W, c.imag % H)}     
-             .to_set 
+               .map{|c| Complex(c.real % W, c.imag % H)}                  
    
    if pos.size==500
         dump(pos)
