@@ -4,7 +4,7 @@ W, H   = grid.size, grid[0].size
 map    = Set.new
 start  = nil
 target = nil
-DIRS   = [1+0i, 0-1i, -1+0i, 0+1i]
+DIRS   = [1+0i, 0-1i, -1+0i, 0+1i].freeze
 dir    = 0
 
 W.times do |y|
@@ -17,8 +17,7 @@ W.times do |y|
   end
 end
 
-def dump(map, path)
-    
+def dump(map, path)    
     (0...H).each do |y|
         (0...W).each do |x|
             c = Complex(x,y)
@@ -27,6 +26,8 @@ def dump(map, path)
         puts
     end    
 end
+
+map.freeze
 
 class Path
     attr_accessor :nodes, :heading, :score
@@ -54,19 +55,6 @@ class Path
     def target?(pos)
         nodes.last == pos
     end
-
-    def <=>(other)
-        if nodes.length == other.nodes.length
-            other.score<=>score
-        else
-            nodes.length<=>other.nodes.length
-        end
-        
-    end
-
-    def to_s
-        "nodes=#{nodes}, heading=#{heading}, score=#{score}"
-    end
 end
 
 track = [Path.new([start])]
@@ -74,38 +62,28 @@ track = [Path.new([start])]
 w = Hash.new(Float::INFINITY)
 
 best = Float::INFINITY
-s=Time.now
 routes = []
 
 until track.empty?
-    t = track.pop
-    
+    t = track.pop    
     next if t.score > best
     
-    if t.target?(target)
-        # dump(map, t)
-        puts "target= #{t.score}"
-        #gets
-        routes=[] if t.score < best
+    if t.target?(target) && t.score <= best
+        routes = [] if t.score < best
         routes << t.nodes
-        best = [best, t.score].min
+        best = t.score
         next
     end
     
     next if w[[t.nodes.last, t.heading]] < t.score
     
-    w[[t.nodes.last, t.heading]]=t.score
-
-    track << t.step     if t.way?(map, 0)
+    w[[t.nodes.last, t.heading]] = t.score
+    
     track << t.turn(1)  if t.way?(map, 1)
     track << t.turn(-1) if t.way?(map, -1)
-    #dump(map, t)
-    #gets
-    track.sort!
+    track << t.step     if t.way?(map, 0)    
 end
 
 p best
 p routes.map(&:to_set).inject(&:merge).size
-e=Time.now
-p e-s
 
