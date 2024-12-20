@@ -37,7 +37,7 @@ def manhattan(a, b) = (a.real-b.real).abs + (a.imag-b.imag).abs
 def count(cheatsize) =
     @dist.keys.combination(2)
          .filter{|a,b| manhattan(a,b) <= cheatsize}
-         .map{ |a,b| @dist[b] - @dist[a] >= manhattan(a,b) + 100}
-         .count(true)
+         .count{ |a,b| @dist[b] - @dist[a] >= manhattan(a,b) + 100}
+         #.count(true)
          
 puts count(2), count(20)
