@@ -21,8 +21,7 @@ PADS[0]      = KEYPAD        # level  0 -> keypad
 FORBIDDEN[0] = 0+3i     
 STARTPOS[0]  = 2+3i
 
-def singlestep(pos, target, level)    
-    pad = PADS[level]
+def singlestep(pos, target, level)        
     forbidden = FORBIDDEN[level]
     delta = target - pos
     h = (delta.real > 0 ? ?> : ?<) * delta.real.abs
