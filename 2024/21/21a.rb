@@ -168,12 +168,14 @@ end
 
 def seq2(code)
     codes =  seq(code, MOVES1)
-    codes.map{ seq(_1, MOVES2)}.flatten
+    c2 = codes.sort_by(&:length).first
+    seq(c2, MOVES2)
 end
 
 def seq3(code)
     codes =  seq2(code)
-    codes.map{ seq(_1, MOVES2)}.flatten
+    c3 = codes.sort_by(&:length).first
+    seq(c3, MOVES2).sort_by(&:length).first
 end
 
 def seqlength(code)
@@ -183,7 +185,7 @@ end
 #p seq("029A", MOVES1)
 #p  seq(seq(seq(["029A"], MOVES1), MOVES2), MOVES2)
 
-p codes.sum{ |c| seqlength(c) * c[0..2].to_i}
+p codes.map{ |c| seq3(c).size }
 
 
 
