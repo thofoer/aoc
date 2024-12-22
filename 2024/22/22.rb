@@ -9,7 +9,7 @@ end
 def rand(n, times) = (times.times { n = nextnum(n) }; n)
 
 def prices(n)
-    price, diff,last = [], [], 0
+    price, diff, last = [], [], 0
     
     2000.times do        
         price << v = n % 10
@@ -24,10 +24,13 @@ def prices(n)
     res.default_proc = proc {0}
     res
 end
-
+sss = Time.now
 p input.sum{ rand(_1, 2000) }
 
 maps = input.map{ prices(_1) }
 seqs = maps.map(&:keys).inject(&:concat).uniq
 
 p seqs.map{|s| maps.sum{ _1[s]}}.max
+
+
+puts Time.now - sss
