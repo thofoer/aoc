@@ -9,12 +9,12 @@ end
 def rand(n, times) = (times.times { n = nextnum(n) }; n)
 
 def prices(n)
-    price, diff, last = [], [], 0
+    price, diff,last = [], [], 0
     
     2000.times do        
-        price << n % 10
-        diff  << n % 10 - last
-        last = n % 10
+        price << v = n % 10
+        diff  << v - last
+        last = v
         n = nextnum(n)                
     end
     res = {}
