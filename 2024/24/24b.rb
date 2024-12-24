@@ -103,9 +103,13 @@ def dump(z, depth=46)
 end
 
 45.times.each do  |i|
-    z = ?z + ("%02d" % i)
+    is = ("%02d" % i)
+    z = ?z + is
     puts z
-    puts dump(z)
+    d = dump(z, 2)
+    print d    
+    puts (d =~ Regexp.new("\\([xy]#{is} XOR [yx]#{is}\\) XOR|XOR \\([xy]#{is} XOR [yx]#{is}\\)")) || i==0 ? "" : "<---- Swap"
+    
     puts
     gets
 end
