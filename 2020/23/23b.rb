@@ -7,13 +7,9 @@ lookup = {}
 
 curr = prev = Node.new(a.first, nil)
 lookup[a.first] = curr
-a[1..].each do |l|  
-  prev.next = n = Node.new(l, nil)
-  lookup[l] = n
-  prev = n
-end
 
-(10..MAX).each do |l|
+(1...MAX).each do |i|
+  l = i < 9 ? a[i] : i+1
   prev.next = n = Node.new(l, nil)
   lookup[l] = n
   prev = n
@@ -30,7 +26,6 @@ prev.next = curr
   curr.next = toMoveLast.next
 
   dest = curr.label - 1
-  dest -= 1 if dest == 0
   destNode = nil
 
   until destNode && destNode != toMoveFirst && destNode != toMoveSecond && destNode != toMoveLast do    
