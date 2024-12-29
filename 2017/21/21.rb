@@ -61,10 +61,9 @@ input.each do |k,v|
     patterns(k).each{ target[toPixel(_1)] = toPixel(v)}
 end
 
-TWO   = [0+0i, 1+0i, 0+1i, 1+1i]
-THREE = [0+0i, 1+0i, 2+0i, 0+1i, 1+1i, 2+1i, 0+2i, 1+2i, 2+2i]
-
-PARAMS = { true => [2, $rules2, TWO], false => [3, $rules3, THREE]}
+TWO    = [0+0i, 1+0i, 0+1i, 1+1i]
+THREE  = [0+0i, 1+0i, 2+0i, 0+1i, 1+1i, 2+1i, 0+2i, 1+2i, 2+2i]
+PARAMS = { true => [2, $rules2, TWO], false => [3, $rules3, THREE] }
 
 def grow(state, size)
     diff, rules, templ = PARAMS[size.even?]
@@ -82,8 +81,11 @@ end
 def solve(count)
     state = toPixel([".#.", "..#", "###"])
     size = state.size
-    count.times do  
+    #sss = Time.now
+    count.times do  |z|
         state, size = grow(state, size)        
+        #puts "#{"%2d" % (z+1)} #{"%5d" % size} #{"%8d" % state.size} #{"%6.2f" % (Time.now - sss)}"
+        #sss = Time.now
     end
     state.size
 end
