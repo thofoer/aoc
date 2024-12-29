@@ -54,64 +54,39 @@ def dump(pixel, size)
     puts
 end
 
-$rules2 = {}
-$rules3 = {}
+$rules2, $rules3 = {}, {}
+
 input.each do |k,v|  
     target = v[0].size == 3 ? $rules2 : $rules3  
     patterns(k).each{ target[toPixel(_1)] = toPixel(v)}
 end
 
-
 TWO   = [0+0i, 1+0i, 0+1i, 1+1i]
 THREE = [0+0i, 1+0i, 2+0i, 0+1i, 1+1i, 2+1i, 0+2i, 1+2i, 2+2i]
 
-def grow3(state, size)
-    #p size
-    #p state 
-    #puts "========== grow3"
+PARAMS = { true => [2, $rules2, TWO], false => [3, $rules3, THREE]}
+
+def grow(state, size)
+    diff, rules, templ = PARAMS[size.even?]
+
     newState = Set.new
-    (0...size/3).each do |x|        
-        (0...size/3).each do |y|            
-            pattern = THREE.map{ _1 + Complex(3*x, 3*y)}.to_set.intersection(state).to_a.map{ _1 - Complex(3*x, 3*y)}.to_set
-            #p "#{x} #{y} #{pattern}"
-            #p $rules3[pattern]            
-            #gets
-            $rules3[pattern].to_a.map{ _1 + Complex(4*x, 4*y) }.each{ newState << _1}
+    (0...size/diff).each do |x|        
+        (0...size/diff).each do |y|            
+            pattern = templ.map{ _1 + Complex(diff*x, diff*y)}.to_set.intersection(state).to_a.map{ _1 - Complex(diff*x, diff*y)}.to_set            
+            rules[pattern].to_a.map{ _1 + Complex((diff+1)*x, (diff+1)*y) }.each{ newState << _1}
         end
     end
-    newState
+    [newState, size/diff * (diff+1) ]
 end
 
-def grow2(state, size)
-    #p size
-    #p state 
-    #puts "========== grow2"
-    newState = Set.new
-    (0...size/2).each do |x|        
-        (0...size/2).each do |y|            
-            pattern = TWO.map{ _1 + Complex(2*x, 2*y)}.to_set.intersection(state).to_a.map{ _1 - Complex(2*x, 2*y)}.to_set
-            #p "#{x} #{y} #{pattern}"
-            #p $rules2[pattern]  
-            #gets
-            $rules2[pattern].to_a.map{ _1 + Complex(3*x,   3*y)   }.each{ newState << _1}
-        end
+def solve(count)
+    state = toPixel([".#.", "..#", "###"])
+    size = state.size
+    count.times do  
+        state, size = grow(state, size)        
     end
-    newState
+    state.size
 end
 
-state = toPixel([".#.", "..#", "###"])
-
-
-size = 3
-18.times do 
-
-    if size % 2 == 0
-        state = grow2(state, size)
-        size = size/2 * 3
-    else
-        state = grow3(state, size)
-        size = size/3 * 4
-    end
-    #dump(state, size)
-end
-p state.size
+p solve(5)
+p solve(18)
