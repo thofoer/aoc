@@ -24,13 +24,13 @@ input.each_char do |c|
       sum += depth
     end
   when ?}
-    if garbage
+    if garbage 
       count += 1
     else
       depth -= 1
     end
   else
-    count += 1 if c != ?, || garbage
+    count += 1 if garbage
   end
 end
 
