@@ -15,7 +15,7 @@ end
 def flip(m)
    [
     m,
-    [m.last, m[1..-2], m.first].flatten,
+    m.reverse,
     m.map(&:reverse)
    ]
 end
@@ -24,7 +24,7 @@ def rotate(m)
     [
          m,
          m.size.times.map {|i| m.map{_1[i]}.join.reverse},
-         [m.last, m[1..-2], m.first].flatten.map(&:reverse),
+         m.reverse.map(&:reverse),
          m.size.times.map {|i| m.map{_1[m.size-i-1]}.join}
     ]
 end
@@ -36,8 +36,8 @@ end
 def toPixel(img)
     res = Set.new
     img.each.with_index do |l,y|
-        l.each_byte.with_index do |b,x|
-            res << Complex(x,y) if b == 35
+        l.each_char.with_index do |b,x|
+            res << Complex(x,y) if b == ?#
         end
     end
     res
