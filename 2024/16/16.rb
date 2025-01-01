@@ -64,13 +64,15 @@ w = Hash.new(Float::INFINITY)
 best = Float::INFINITY
 routes = []
 
+s=Time.now 
+
 until track.empty?
     t = track.pop    
     next if t.score > best
     
     if t.target?(target) && t.score <= best
         routes = [] if t.score < best
-        routes << t.nodes
+        routes << t.nodes.to_set
         best = t.score
         next
     end
@@ -85,5 +87,6 @@ until track.empty?
 end
 
 p best
-p routes.map(&:to_set).inject(&:merge).size
+p routes.inject(&:merge).size
 
+p Time.now - s
