@@ -1,6 +1,5 @@
 input = File.read("input.txt").scan(/(..)\-(..)/)
 
-sss = Time.now
 $map = Hash.new {|h,k| h[k] = Set.new}
 
 input.each do |a,b|
@@ -19,7 +18,6 @@ end
 puts nets.count{ |c| c.any?{|n| n.start_with?(?t)}}
 
 def findmax(len)
-    puts len
     $map.each do |k,v|        
         f = v.to_a
              .combination(len)
@@ -27,10 +25,7 @@ def findmax(len)
 
         (puts [*f, k].sort.join(?,); return true) if f
     end
-    false
+    false 
 end
 
 $map.values.map(&:size).max.downto(1).find{ findmax(_1) }
-
-puts Time.now - sss
-
