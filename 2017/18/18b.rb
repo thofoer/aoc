@@ -18,7 +18,7 @@ def step(pn)
         when "add" then $vars[pn][arg1] += val2
         when "mul" then $vars[pn][arg1] *= val2
         when "mod" then $vars[pn][arg1] %= val2        
-        when "jgz" then $ptr[pn] += val2 unless val1 <= 0
+        when "jgz" then $ptr[pn] += val2-1 unless val1 <= 0
         when "rcv" 
             unless $queues[pn ^ 1].empty?
                 $vars[pn][arg1] = $queues[pn ^ 1].shift
@@ -26,7 +26,7 @@ def step(pn)
                 return false
             end
     end 
-    $ptr[pn] += 1 unless op == "jgz" && val1 > 0
+    $ptr[pn] += 1
     true
 end
 
