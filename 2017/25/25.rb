@@ -10,19 +10,12 @@ input.scan(/state (.):.*?value (0|1).*?(left|right).*?state (.).*?value (0|1).*?
     turing[state] = v
 end
 
-steps.to_i.times do |i|
-    #puts "#{i}, #{pos} #{state}" if i%100000==0
-    s = turing[state]
-   # p s
-    if tape[pos] == ?0
-        tape[pos] = s[0]
-        pos += (s[1] == "right" ? 1 : -1)
-        state = s[2]
-    else
-        tape[pos] = s[3]
-        pos += (s[4] == "right" ? 1 : -1)
-        state = s[5]
-    end
-  #  gets
+steps.to_i.times do
+    s = turing[state] 
+    o = tape[pos] == ?0 ? 0 : 3       
+    tape[pos] = s[o]
+    pos  += s[o+1] == "right" ? 1 : -1
+    state = s[o+2]
 end
+
 p tape.values.count(?1)
