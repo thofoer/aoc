@@ -44,8 +44,6 @@ addAdjacentWhites(hex)
              hex.select{|_,v| !v}.keys.select{|white| adjacent(white).count{|ab| hex[ab]} == 2}
     toFlip.each{hex[_1] ^= true}
     addAdjacentWhites(hex)
-#    p toFlip.map{adjacent(_1).map{|s|hex[s]} }
-
 end
 
 p hex.values.count(true)

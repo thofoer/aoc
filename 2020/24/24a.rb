@@ -18,4 +18,4 @@ hex = {}
 
 input.map { |seq| seq.inject(Coord.new(0,0,0)){ |a,d| step(a,d)} }.each { hex[_1] ^= true }
     
-puts hex.keys
+p hex.values.count(true)
