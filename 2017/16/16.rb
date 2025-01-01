@@ -31,7 +31,6 @@ until hist.include? $a
    dance
    puts $a if round == 1   
 end
-p hist.size
 cycle = round - hist[$a]
 
 remainder = (1000000000 - hist[$a]) % cycle
@@ -40,4 +39,4 @@ remainder.times do
     dance
 end
 
-puts  $a
+puts $a

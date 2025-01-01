@@ -36,8 +36,7 @@ DIRS = [0-1i, -1+0i, 0+1i, 1+0i]
 dir = 0
 count = 0
 
-10000000.times do
-    
+10000000.times do    
     dir += 1 if grid[pos] == :clean 
     dir -= 1 if grid[pos] == :infected
     dir += 2 if grid[pos] == :flagged

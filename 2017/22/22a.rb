@@ -27,7 +27,7 @@ DIRS = [0-1i, -1+0i, 0+1i, 1+0i]
 dir = 0
 count = 0
 
-10000000.times do
+10000.times do
     dir = (dir + (grid.include?(pos) ? -1 : 1)) % 4
     if grid.include?(pos)
         grid.delete(pos)
