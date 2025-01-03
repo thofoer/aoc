@@ -2,7 +2,6 @@ require 'pairing_heap'
 PrioQueue =  PairingHeap::MinPriorityQueue
 DIRS = [-1+0i, 0-1i, 1+0i, 0+1i]
 
-
 grid = Set.new
 doors, keys = {}, {}
 start = nil
