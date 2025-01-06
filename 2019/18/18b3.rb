@@ -74,27 +74,11 @@ def scanEnvironment(pos)
 end
 
 def makeBotId(bots, keys)
-  bots.map{|x,y| "r#{x}c#{y}"}.join + keys.to_a.sort.join
+  bots.map(&:pos).map{|c| "r#{c.imag}c#{c.real}"}.join + keys.to_a.sort.join
 end
-bots = []
-bots << start + Complex(-1, -1)
-bots << start + Complex(1, -1)
-bots << start + Complex(1, 1)
-bots << start + Complex(-1, 1)
-
-
-
-
-
+bots = [-1-1i, 1-1i, 1+1i, -1+1i].map{ Bot.new(start + it, scanEnvironment(start + it))}
 
 def solve(bots, dists)
-  botkeys = [
-    scanEnvironment( bots[0]),
-    scanEnvironment( bots[1]),
-    scanEnvironment( bots[2]),
-    scanEnvironment( bots[3])
-  ]
-
   solved = false
   start = { :b => bots.map(&:dup), :d => 0, :k => Set.new, :id =>  makeBotId(bots, Set.new)}
   seen = {}
@@ -109,12 +93,12 @@ def solve(bots, dists)
     next if seen[cur[:id]] < cur[:d]
     (0..3).each do |i|
       puts "BOT = #{cur[:b][i].inspect}"
-      botkeys[i].each do |key|
+      bots[i].env.each do |key|
         puts "KEY = #{key.inspect}"
 
         if !cur[:k].include? key.id
           p "#{cur[:k]}   #{key.id}"
-          p "r#{cur[:b][i].imag}c#{cur[:b][i].real}", "r#{key.pos.imag}c#{key.pos.real}"
+          p "r#{cur[:b][i].pos.imag}c#{cur[:b][i].pos.real}", "r#{key.pos.imag}c#{key.pos.real}"
           #gets
           reachable = true
           key[:doors].each do |door|
@@ -128,7 +112,7 @@ def solve(bots, dists)
             puts "current key: #{key.pos}"
             p dists
 
-            dist = dists[cur[:b][i]][key.pos]
+            dist = dists[cur[:b][i].pos][key.pos]
             p dist
             #  gets
 
@@ -138,7 +122,7 @@ def solve(bots, dists)
             return nd if nk.size == $keys.size
 
             nb = cur[:b].map(&:dup)
-            nb[i] = key.pos
+            nb[i].pos = key.pos
             nid = makeBotId(nb, nk)
             if !seen[nid] || seen[nid] > nd
               #p "PUSH #{{:b=>nb, :d=>nd, :k=>nk, :id=>nid}}, #{nd}"
