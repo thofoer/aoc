@@ -83,76 +83,75 @@ bots << start + Complex(1, 1)
 bots << start + Complex(-1, 1)
 
 
-botkeys = [
-  scanEnvironment( bots[0]),
-  scanEnvironment( bots[1]),
-  scanEnvironment( bots[2]),
-  scanEnvironment( bots[3])
-]
-p botkeys
 
-p Time.now - sss
 
-dists = makeDistMap
-solved = false
-start = { :b => bots.map(&:dup), :d => 0, :k => Set.new, :id =>  makeBotId(bots, Set.new)}
-seen = {}
-seen[start[:id]] = 0
 
-queue = PrioQueue.new
-queue.push start
 
-until queue.empty? || solved
-  cur = queue.pop
-  puts "CURRENT #{cur.inspect}"
-  next if seen[cur[:id]] < cur[:d]
-  (0..3).each do |i|
-    puts "BOT = #{cur[:b][i].inspect}"
-    botkeys[i].each do |key|
-      puts "KEY = #{key.inspect}"
+def solve(bots, dists)
+  botkeys = [
+    scanEnvironment( bots[0]),
+    scanEnvironment( bots[1]),
+    scanEnvironment( bots[2]),
+    scanEnvironment( bots[3])
+  ]
 
-      if !cur[:k].include? key.id
-        p "#{cur[:k]}   #{key.id}"
-        p "r#{cur[:b][i].imag}c#{cur[:b][i].real}", "r#{key.pos.imag}c#{key.pos.real}"
-        #gets
-        reachable = true
-        key[:doors].each do |door|
-          reachable = false unless cur[:k].include? door
-        end
-        if reachable
+  solved = false
+  start = { :b => bots.map(&:dup), :d => 0, :k => Set.new, :id =>  makeBotId(bots, Set.new)}
+  seen = {}
+  seen[start[:id]] = 0
 
-          puts "============================"
+  queue = PrioQueue.new
+  queue.push start
 
-          puts "current bot: #{cur[:b][i]}  #{i}"
-          puts "current key: #{key.pos}"
-          p dists
+  until queue.empty? || solved
+    cur = queue.pop
+    puts "CURRENT #{cur.inspect}"
+    next if seen[cur[:id]] < cur[:d]
+    (0..3).each do |i|
+      puts "BOT = #{cur[:b][i].inspect}"
+      botkeys[i].each do |key|
+        puts "KEY = #{key.inspect}"
 
-          dist = dists[cur[:b][i]][key.pos]
-          p dist
-          #  gets
-
-          nd = cur[:d] + dist
-          nk = cur[:k].dup
-          nk << key.id
-          if nk.size == $keys.size
-            solution = nd
-            solved = true
-            puts solution
-            break
+        if !cur[:k].include? key.id
+          p "#{cur[:k]}   #{key.id}"
+          p "r#{cur[:b][i].imag}c#{cur[:b][i].real}", "r#{key.pos.imag}c#{key.pos.real}"
+          #gets
+          reachable = true
+          key[:doors].each do |door|
+            reachable = false unless cur[:k].include? door
           end
-          nb = cur[:b].map(&:dup)
-          nb[i] = key.pos
-          nid = makeBotId(nb, nk)
-          if !seen[nid] || seen[nid] > nd
-            #p "PUSH #{{:b=>nb, :d=>nd, :k=>nk, :id=>nid}}, #{nd}"
-            queue.push({:b=>nb, :d=>nd, :k=>nk, :id=>nid}, nd)
-            seen[nid] = nd
+          if reachable
+
+            puts "============================"
+
+            puts "current bot: #{cur[:b][i]}  #{i}"
+            puts "current key: #{key.pos}"
+            p dists
+
+            dist = dists[cur[:b][i]][key.pos]
+            p dist
+            #  gets
+
+            nd = cur[:d] + dist
+            nk = cur[:k].dup
+            nk << key.id
+            return nd if nk.size == $keys.size
+
+            nb = cur[:b].map(&:dup)
+            nb[i] = key.pos
+            nid = makeBotId(nb, nk)
+            if !seen[nid] || seen[nid] > nd
+              #p "PUSH #{{:b=>nb, :d=>nd, :k=>nk, :id=>nid}}, #{nd}"
+              queue.push({:b=>nb, :d=>nd, :k=>nk, :id=>nid}, nd)
+              seen[nid] = nd
+            end
           end
         end
       end
     end
   end
 end
-
+dists = makeDistMap
+p solve(bots, dists)
 
 p Time.now - sss
