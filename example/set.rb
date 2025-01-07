@@ -58,3 +58,18 @@ z = 0
 end
 p z
 p Time.now - sss
+
+sss = Time.now
+e = Set.new
+Pos = Struct.new(:x, :y)
+
+1000000.times do |i|
+  e << Pos.new(i,i)
+end
+
+z = 0
+500000.times do |i|
+  z += 1 if e.include?( Pos.new(i,i+1)) || e.include?( Pos.new(i,i))
+end
+p z
+p Time.now - sss

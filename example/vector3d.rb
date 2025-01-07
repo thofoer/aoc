@@ -64,3 +64,12 @@ e2 = TRANS.map{ it.call(v)}
 p e1 == e2
 
 p e2
+
+
+Pos = Struct.new(:x, :y) do
+  def manhattan = x.abs + y.abs
+end
+
+p1 = Pos.new(12, -7)
+
+p p1, p1.manhattan
