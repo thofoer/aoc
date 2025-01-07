@@ -1,6 +1,7 @@
 require 'pairing_heap'
 PrioQueue =  PairingHeap::MinPriorityQueue
 State = Struct.new(:pos, :dist, :doors)
+State2 = Struct.new(:x, :y, :dist)
 SolveState = Struct.new(:bots, :dist, :keys)
 Key = Struct.new(:pos, :id, :doors)
 Bot = Struct.new(:pos, :env)
@@ -14,8 +15,10 @@ sss = Time.now
 $grid = Set.new
 $doors, $keys = {}, {}
 start = nil
-
-File.readlines("sample5.txt", chomp: true).each_with_index do |l, y|
+$f = File.readlines("input.txt", chomp: true)
+H = $f.size
+W = $f[0].size
+File.readlines("input.txt", chomp: true).each_with_index do |l, y|
   l.chars.each.with_index do |c, x|
     p =  Complex(x,y)
     $grid << p unless c == ?#
@@ -51,6 +54,60 @@ def makeDistMap
   distMap
 end
 
+def makeDistMap2
+  distMap = Hash.new{|h,k| h[k] = {} }
+
+  $grid.each do |pos|
+    dists = {}
+    state = State.new(pos, 0)
+    visited = Set.new([pos.real << 8 | pos.imag])
+    queue = [state]
+    until queue.empty?
+      cur = queue.shift
+      DIRS.each do |d|
+        npos = cur.pos + d
+        h = npos.real << 8 | npos.imag
+        unless visited.include? h
+          visited << h
+          if $grid.include?(npos)
+            dists[h] = cur.dist + 1
+            queue << State.new(npos, cur.dist + 1)
+          end
+        end
+      end
+    end
+    distMap[pos.real << 8 | pos.imag] = dists
+  end
+  distMap
+end
+
+def makeDistMap3
+
+  distMap = Hash.new{|h,k| h[k] = {} }
+
+  $grid.each do |pos|
+    dists = {}
+    state = State.new(pos, 0)
+    visited = Set.new([pos.real << 8 | pos.imag])
+    queue = [state]
+    until queue.empty?
+      cur = queue.shift
+      DIRS.each do |d|
+        npos = cur.pos + d
+        h = npos.real << 8 | npos.imag
+        unless visited.include? h
+          visited << h
+          if $f[npos.imag][npos.real] != ?#
+            dists[h] = cur.dist + 1
+            queue << State.new(npos, cur.dist + 1)
+          end
+        end
+      end
+    end
+    distMap[pos.real << 8 | pos.imag] = dists
+  end
+  distMap
+end
 
 def scanEnvironment(pos)
   environment = []
@@ -87,18 +144,17 @@ def solve(bots, dists)
   queue = PrioQueue.new
   queue.push start
 
+  puts "start"
   until queue.empty? || solved
     cur = queue.pop
-    puts "CURRENT #{cur.inspect}"
+    #puts "CURRENT #{cur.inspect}"
     next if seen[cur[:id]] < cur[:d]
     (0..3).each do |i|
-      puts "BOT = #{cur[:b][i].inspect}"
+      # puts "BOT = #{cur[:b][i].inspect}"
       bots[i].env.each do |key|
-        puts "KEY = #{key.inspect}"
+        #  puts "KEY = #{key.inspect}"
 
         if !cur[:k].include? key.id
-          p "#{cur[:k]}   #{key.id}"
-          p "r#{cur[:b][i].pos.imag}c#{cur[:b][i].pos.real}", "r#{key.pos.imag}c#{key.pos.real}"
           #gets
           reachable = true
           key[:doors].each do |door|
@@ -106,14 +162,14 @@ def solve(bots, dists)
           end
           if reachable
 
-            puts "============================"
+            #   puts "============================"
 
-            puts "current bot: #{cur[:b][i]}  #{i}"
-            puts "current key: #{key.pos}"
-            p dists
+            # puts "current bot: #{cur[:b][i]}  #{i}"
+            #  puts "current key: #{key.pos}"
+
 
             dist = dists[cur[:b][i].pos][key.pos]
-            p dist
+            #puts dist
             #  gets
 
             nd = cur[:d] + dist
@@ -135,7 +191,16 @@ def solve(bots, dists)
     end
   end
 end
-dists = makeDistMap
+#sss = Time.now
+#dists = makeDistMap
+#p Time.now - sss
+#sss = Time.now
+#dists = makeDistMap2
+#p Time.now - sss
+#sss = Time.now
+#dists = makeDistMap3
+p Time.now - sss
+return
 p solve(bots, dists)
 
 p Time.now - sss

@@ -67,7 +67,7 @@ grid.delete start + (0-1i)
 
 
 p [start + (-1-1i), start + (1-1i), start + (-1+1i), start + (+1+1i), 0, 0]
-
+bestDist = Hash.new(1000000)
 queue.push [start + (-1-1i), start + (1-1i), start + (-1+1i), start + (+1+1i), 0, 0], 0
 zz=0
 until queue.empty? do
@@ -75,7 +75,7 @@ until queue.empty? do
     
     c1, c2, c3, c4, kk, dist = queue.pop
     (puts dist; break) if kk == allkeys
-    
+    #next if bestDist[[c1,c2,c3,c4,kk]] < dist
     zz+=1
     puts "#{zz}   #{queue.size}  #{dist}" if zz % 100000 == 0
 
@@ -89,7 +89,8 @@ until queue.empty? do
                 newState = state.dup
                 newState[4] = newKeys                
             
-                if (doors[n].nil? || (kk & keybit[doors[n]]) != 0) && !visited.include?(newState)                            
+                if (doors[n].nil? || (kk & keybit[doors[n]]) != 0) && !visited.include?(newState)
+                  bestDist[state[0..4]] = dist + 1
                     queue.push newState, dist + 1
                     visited << newState
                 end
