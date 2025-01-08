@@ -2,8 +2,7 @@ require 'pairing_heap'
 PrioQueue =  PairingHeap::MinPriorityQueue
 
 map = File.readlines("input.txt", chomp: true)
-H = map.size
-W = map.map(&:size).max
+H, W = map.size, map.map(&:size).max
 
 Pos = Struct.new(:x, :y) do
   def +(other) = Pos.new(x+other.x, y+other.y)
@@ -11,29 +10,29 @@ Pos = Struct.new(:x, :y) do
 end
 
 Portal = Struct.new(:id, :pos, :other) do
-  def outer? = [2, H-3].include?(pos.y) || [2, W-3].include?(pos.x)
-  def inner? = !outer?
+  def outer? = pos.y == 2 || pos.y == H-3 || pos.x == 2 || pos.x == W-3
   def inspect = "#{id}(#{outer? ? ?o : ?i}) #{pos.inspect}"
 end
 
 start, target = nil
 portals = []
 portalLinks = Hash.new{|h,k| h[k] = []}
+
 (1...H-1).each do |y|
   (1...W-1).each do |x|
     if map[y][x] =~ /[A-Z]/
       [
-        [ 1,  0, -1,  0, 0, 0],
-        [-1,  0,  0,  0, 1, 0],
-        [ 0,  1,  0, -1, 0, 0],
-        [ 0, -1,  0,  0, 0, 1]
+        [ 1,  0, -1,  0, 0, 0],  # vertical top
+        [-1,  0,  0,  0, 1, 0],  # vertical bottom
+        [ 0,  1,  0, -1, 0, 0],  # horizontal left
+        [ 0, -1,  0,  0, 0, 1]   # horizontal right
       ].each do | dy, dx, ay, ax, by, bx, t|
         if  map[y+dy][x+dx] == ?.
           id = "#{map[y+ay][x+ax]}#{map[y+by][x+bx]}"
           portal = Portal.new(id, Pos.new(x+dx, y+dy))
           portals << portal
           portalLinks[id] << portal
-          start = portal if id == "AA"
+          start  = portal if id == "AA"
           target = portal if id == "ZZ"
         end
       end
@@ -41,12 +40,12 @@ portalLinks = Hash.new{|h,k| h[k] = []}
   end
 end
 
-portalLinks = portalLinks.select{|k,v| v.size == 2}.values.flat_map {|a,b| [[a,b], [b,a]]}.to_h
-
-portalLinks.each do |k,v|
-  k.other = v
-  v.other = k
-end
+portalLinks.select{|k,v| v.size == 2}
+           .flat_map {|_,(a,b)| [[a,b], [b,a]]}
+           .each do |a,b|
+               a.other = b
+               b.other = a
+           end
 
 DIRS = [Pos.new(-1,0), Pos.new(0,-1), Pos.new(1,0), Pos.new(0,1)]
 
@@ -66,7 +65,7 @@ def shortestDist(map, p1, p2)
         .reject{ visited.include?(it) }
         .each do |n|
       visited << n
-      queue.push n, dist+1
+      queue.push n, dist + 1
     end
   end
 end
@@ -81,41 +80,28 @@ portals.combination(2)
           distMap[b][a] = d
         end
 
-target.other = target
-
-sss = Time.now
-
-
-
 def solve(distMap, start, target)
-
-  state = [start, 0, 0]
-  visited = Set.new([state[0..1]])
-
+  visited = Set.new
   queue = PrioQueue.new
-  queue.push state, 0
+  queue.push [start, 0], 0
 
   until queue.empty?
-    pos, level, dist = queue.pop
-
-    # return dist-1 if pos == target && level == -1
+    (pos, level), dist = queue.pop_with_priority
 
     distMap[pos].each do |npos, delta|
-      return dist+delta if npos == target && level == 0
+      return dist + delta if npos == target && level == 0
 
-      next if npos == start
-      next if level == 0 && npos.outer? && npos != target
-      next if level > 0 && npos == target
-      ndist = dist + delta + 1
-      nstate = [npos.other, level + (npos.inner? ? 1 : -1), ndist]
+      next if level == 0 && npos.outer?
+      next if level  > 0 && npos == target
 
-      unless visited.include? nstate[0..1]
-        queue.push nstate, ndist
-        visited << nstate[0..1]
+      nstate = [npos.other, level + (npos.outer? ? -1 : 1)]
+
+      unless visited.include? nstate
+        queue.push nstate, dist + delta + 1
+        visited << nstate
       end
     end
   end
 end
 
-p solve(distMap, start, target)
-puts Time.now - sss
+p solve distMap, start, target
