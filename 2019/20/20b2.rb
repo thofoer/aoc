@@ -85,31 +85,37 @@ target.other = target
 
 sss = Time.now
 
-visited = {}
-state = [start, 0, 0]
 
-queue = PrioQueue.new
-queue.push state, 0
 
-until queue.empty?
-  pos, level, dist = queue.pop
+def solve(distMap, start, target)
 
-  (puts dist-1; break) if pos == target && level == -1
-  distMap[pos]
-    .each do |npos, delta|
+  state = [start, 0, 0]
+  visited = Set.new([state[0..1]])
 
-    next if npos == start
-    next if level == 0 && npos.outer? && npos != target
-    next if level > 0 && npos == target
+  queue = PrioQueue.new
+  queue.push state, 0
 
-    nstate = [npos.other, level + (npos.inner? ? 1 : -1), dist + delta + 1 ]
+  until queue.empty?
+    pos, level, dist = queue.pop
 
-    if  visited[nstate].nil? ||    visited[nstate] >  dist + delta + 1
+    # return dist-1 if pos == target && level == -1
 
-      queue.push nstate, dist + delta + 1
-      visited[nstate]= dist + delta + 1
+    distMap[pos].each do |npos, delta|
+      return dist+delta if npos == target && level == 0
+
+      next if npos == start
+      next if level == 0 && npos.outer? && npos != target
+      next if level > 0 && npos == target
+      ndist = dist + delta + 1
+      nstate = [npos.other, level + (npos.inner? ? 1 : -1), ndist]
+
+      unless visited.include? nstate[0..1]
+        queue.push nstate, ndist
+        visited << nstate[0..1]
+      end
     end
   end
 end
 
+p solve(distMap, start, target)
 puts Time.now - sss
