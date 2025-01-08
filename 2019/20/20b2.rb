@@ -81,15 +81,11 @@ portals.combination(2)
           distMap[b][a] = d
         end
 
-distMap.each{p it}
-
 target.other = target
-p start
-p target
-puts "Start"
 
+sss = Time.now
 
-visited = Set.new
+visited = {}
 state = [start, 0, 0]
 
 queue = PrioQueue.new
@@ -98,30 +94,22 @@ queue.push state, 0
 until queue.empty?
   pos, level, dist = queue.pop
 
-   puts "POS: #{pos.inspect}  level: #{level}   dist: #{dist}"
-
   (puts dist-1; break) if pos == target && level == -1
   distMap[pos]
     .each do |npos, delta|
-
-
 
     next if npos == start
     next if level == 0 && npos.outer? && npos != target
     next if level > 0 && npos == target
 
-    #  puts "  NPOS = #{npos.inspect}   #{dist}"
-    # p npos, delta
     nstate = [npos.other, level + (npos.inner? ? 1 : -1), dist + delta + 1 ]
-    #puts "    PUSH #{nstate}"
-    unless visited.include? nstate
+
+    if  visited[nstate].nil? ||    visited[nstate] >  dist + delta + 1
 
       queue.push nstate, dist + delta + 1
-      visited <<  nstate
+      visited[nstate]= dist + delta + 1
     end
-    # gets
   end
-
 end
 
-
+puts Time.now - sss
