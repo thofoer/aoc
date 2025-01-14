@@ -1,147 +1,107 @@
 require 'pairing_heap'
 PrioQueue =  PairingHeap::MinPriorityQueue
 
-map = File.readlines("sample3.txt", chomp: true)
-H = map.size
-W = map.map(&:size).max
+map = File.readlines("input.txt", chomp: true)
+H, W = map.size, map.map(&:size).max
 
-portalInner = {}
-portalOuter = {}
-portalMap = Hash.new{|h,k| h[k] = []}
+Pos = Struct.new(:x, :y) do
+  def +(other) = Pos.new(x+other.x, y+other.y)
+  def inspect = "(#{x},#{y})"
+end
+
+Portal = Struct.new(:id, :pos, :other) do
+  def outer? = pos.y == 2 || pos.y == H-3 || pos.x == 2 || pos.x == W-3
+  def inspect = "#{id}(#{outer? ? ?o : ?i}) #{pos.inspect}"
+end
+
+start, target = nil
+portals = []
+portalLinks = Hash.new{|h,k| h[k] = []}
+
 (1...H-1).each do |y|
   (1...W-1).each do |x|
     if map[y][x] =~ /[A-Z]/
       [
-        [ 1,  0, -1,  0, 0, 0],
-        [-1,  0,  0,  0, 1, 0],
-        [ 0,  1,  0, -1, 0, 0],
-        [ 0, -1,  0,  0, 0, 1]
+        [ 1,  0, -1,  0, 0, 0],  # vertical top
+        [-1,  0,  0,  0, 1, 0],  # vertical bottom
+        [ 0,  1,  0, -1, 0, 0],  # horizontal left
+        [ 0, -1,  0,  0, 0, 1]   # horizontal right
       ].each do | dy, dx, ay, ax, by, bx, t|
-        pp = [1, H-2].include?(y) || [1, W-2].include?(x) ? portalOuter : portalInner
-        pp["#{map[y+ay][x+ax]}#{map[y+by][x+bx]}"] = [y+dy,x+dx] if map[y+dy][x+dx] == ?.
-        portalMap["#{map[y+ay][x+ax]}#{map[y+by][x+bx]}"] << [y+dy,x+dx] if map[y+dy][x+dx] == ?.
+        if  map[y+dy][x+dx] == ?.
+          id = "#{map[y+ay][x+ax]}#{map[y+by][x+bx]}"
+          portal = Portal.new(id, Pos.new(x+dx, y+dy))
+          portals << portal
+          portalLinks[id] << portal
+          start  = portal if id == "AA"
+          target = portal if id == "ZZ"
+        end
       end
     end
   end
 end
 
-portals = portalMap.select{|k,v| v.size == 2}.values.flat_map {|a,b| [[a,b], [b,a]]}.to_h
+portalLinks.select{|k,v| v.size == 2}
+           .flat_map {|_,(a,b)| [[a,b], [b,a]]}
+           .each do |a,b|
+               a.other = b
+               b.other = a
+           end
 
-p portals
-p portals[[2,13]]
-p "---------"
+DIRS = [Pos.new(-1,0), Pos.new(0,-1), Pos.new(1,0), Pos.new(0,1)]
 
-start  = portalOuter["AA"]
-target = portalOuter["ZZ"]
-
-allPortals = Set.new(portalInner.keys + portalOuter.keys)
-
-p allPortals
-DIRS = [[-1,0], [0,-1], [1,0], [0,1]]
-def shortestDist(map, start, target)
+def shortestDist(map, p1, p2)
   queue = PrioQueue.new
   visited = Set.new
 
-  queue.push start, 0
+  queue.push p1.pos, 0
 
   until queue.empty? do
     curr, dist = queue.pop_with_priority
 
-    return dist if curr == target
+    return dist if curr == p2.pos
 
-    DIRS.map{ [it[0] + curr[0], it[1] + curr[1]] }
-        .select{ map[it[0]][it[1]] == ?. }
+    DIRS.map{ it + curr }
+        .select{ map[it.y][it.x] == ?. }
         .reject{ visited.include?(it) }
         .each do |n|
-          visited << n
-          queue.push n, dist+1
+      visited << n
+      queue.push n, dist + 1
     end
   end
 end
 
-$nameMap = {}
+distMap = Hash.new{|h,k| h[k] = {}}
 
-def searchPaths(map, portals1, portals2)
-  res = Hash.new{|h,k| h[k]={}}
-  portals1.each do |p1Name, p1Pos|
-    portals2.each do |p2Name, p2Pos|
-      next if p1Pos == p2Pos
-      dist = shortestDist(map, p1Pos, p2Pos)
-      #res[[p1Name, p1Pos]][[ p2Name, p2Pos]] = dist if dist
-      res[p1Pos][p2Pos] = dist if dist
-    end
-    $nameMap[p1Pos] = p1Name
-  end
-  res
-end
+portals.combination(2)
+       .map { |a,b| [a, b, shortestDist(map, a, b)]}
+       .reject{|_,_,d| d.nil?}
+       .each do |a, b, d|
+          distMap[a][b] = d
+          distMap[b][a] = d
+        end
 
-outerToOuter = searchPaths(map, portalOuter, portalOuter)
-outerToInner = searchPaths(map, portalOuter, portalInner)
-innerToOuter = searchPaths(map, portalInner, portalOuter)
-innerToInner = searchPaths(map, portalInner, portalInner)
+def solve(distMap, start, target, maxDepth)
+  visited = Set.new
+  queue = PrioQueue.new
+  queue.push [start, 0], 0
 
- puts
- puts
-# p outerToOuter
-# p outerToOuter.map{|k,v| v.size}
-# puts
- p outerToInner
- p outerToInner.map{|k,v| v.size}
-# puts
-# p innerToOuter
-# p innerToOuter.map{|k,v| v.size}
-# puts
-# p innerToInner
-# p innerToInner.map{|k,v| v.size}
+  until queue.empty?
+    (pos, level), dist = queue.pop_with_priority
 
-State = Struct.new(:pos, :dir, :level) do
-  def to_ary = [pos, dir, level]
-end
+    distMap[pos].each do |npos, delta|
+      return dist + delta if npos == target && level == 0
+      next if level > maxDepth
+      next if level == 0 && npos.outer?
+      next if level  > 0 && npos == target
 
-state = State.new(start, :outer, 0)
+      nstate = [npos.other, level + (npos.outer? ? -1 : 1)]
 
-queue = PrioQueue.new
-
-queue.push state, 0
-puts "start"
-visited = Set.new
-
-until queue.empty?
-  (pos, dir, level), dist = queue.pop_with_priority
-
-  puts "pos=#{pos} (#{$nameMap[pos]})  dir=#{dir} level=#{level} dist=#{dist}"
-  next if visited.include? [pos, level]
-  (puts dist; break) if pos == target && level == 0
-  gets
-  visited << [pos, level]
-
-  if (dir == :outer)
-    outerToInner[pos].each do |nextInner|
-      npos, delta = nextInner
-      puts "  a PUSH #{portals[npos]} (#{$nameMap[portals[npos]]}), inner, #{level+1}, #{dist+delta}"
-      queue.push State.new(portals[npos], :outer, level+1), dist + delta + 1
-    end
-    outerToOuter[pos].each do |nextOuter|
-
-      npos, delta = nextOuter
-
-        next if level == 0 || (npos == target || npos==start && level>0)
-      puts "  b PUSH #{npos.inspect} #{portals[npos].inspect} (#{$nameMap[portals[npos]]}), inner, #{level-1}, #{dist+delta}"
-      queue.push State.new(portals[npos], :inner, level-1), dist + delta + 1
+      unless visited.include? nstate
+        queue.push nstate, dist + delta + 1
+        visited << nstate
+      end
     end
   end
-  if (dir == :inner)
-    innerToInner[pos].each do |nextInner|
-      npos, delta = nextInner
-      puts "  c PUSH #{portals[npos].inspect} (#{$nameMap[portals[npos]]}), inner, #{level+1}, #{dist+delta}"
-      queue.push State.new(portals[npos], :outer, level+1), dist + delta + 1
-    end
-    innerToOuter[pos].each do |nextOuter|
-      npos, delta = nextOuter
-      next if level == 0||  (npos == target || npos==start && level>0)
-      puts "  d PUSH #{npos.inspect} #{portals[npos].inspect} (#{$nameMap[portals[npos]]}), inner, #{level-1}, #{dist+delta}"
-      queue.push State.new(portals[npos], :inner, level-1), dist + delta + 1
-    end
-  end
-
 end
+
+p solve distMap, start, target, portals.size / 2
