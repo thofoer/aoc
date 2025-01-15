@@ -41,7 +41,7 @@ portalLinks = Hash.new{|h,k| h[k] = []}
 end
 
 portalLinks.select{|k,v| v.size == 2}
-           .flat_map {|_,(a,b)| [[a,b], [b,a]]}
+           .values
            .each do |a,b|
                a.other = b
                b.other = a
