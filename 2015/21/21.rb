@@ -1,7 +1,7 @@
 BHP, BATT, BDEF = File.read("input.txt").scan(/(\d+)/).flatten.map(&:to_i)
 
-Weapon = Struct.new(:cost, :attack ) do def defense = 0 end
-Armour = Struct.new(:cost, :defense) do def attack  = 0 end
+Weapon = Struct.new(:cost, :attack ) { def defense = 0 }
+Armour = Struct.new(:cost, :defense) { def attack  = 0 }
 Ring   = Struct.new(:cost, :attack, :defense)
 
 weapons = [[8, 4], [10, 5], [25, 6], [40, 7], [74, 8]].map{ Weapon.new(*it)}
