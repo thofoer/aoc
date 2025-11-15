@@ -8,12 +8,12 @@ def solve(a)
         c, r, o = PRG[z]
 
         case c
-        when "hlf" then reg[r] /= 2; 
-        when "tpl" then reg[r] *= 3; 
-        when "inc" then reg[r] += 1;
-        when "jmp" then z += r.to_i - 1
-        when "jie" then z += o.to_i - 1 if reg[r].even?
-        when "jio" then z += o.to_i - 1 if reg[r] == 1
+            when "hlf" then reg[r] /= 2; 
+            when "tpl" then reg[r] *= 3; 
+            when "inc" then reg[r] += 1;
+            when "jmp" then z += r.to_i - 1
+            when "jie" then z += o.to_i - 1 if reg[r].even?
+            when "jio" then z += o.to_i - 1 if reg[r] == 1
         end
         z += 1
     end
