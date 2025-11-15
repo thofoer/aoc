@@ -47,7 +47,7 @@ class State
     end
 end
 
-def solve(hard = false)
+def solve(hard)
     queue = []
     best = 100000
     queue.push State.new()
@@ -65,5 +65,5 @@ def solve(hard = false)
     best
 end
 
-p solve
+p solve(false)
 p solve(true)
