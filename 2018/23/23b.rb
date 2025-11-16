@@ -7,12 +7,7 @@ botRanges = bots.size.times.to_a.map{ Z3.Int("range#{_1}") }
 
 optimizer = Z3::Optimize.new
 
-<<<<<<< Updated upstream
 def manhattan(x, y, z) = x.abs + y.abs + z.abs
-=======
-def z3Abs(n) = Z3.IfThenElse(n < 0, -n, n)
-def manhattan(x, y, z) = z3Abs(x) + z3Abs(y) + z3Abs(z) 
->>>>>>> Stashed changes
 
 botRanges.each.with_index do |botrange, i|    
     bx, by, bz, range = bots[i]
