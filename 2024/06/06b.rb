@@ -1,4 +1,4 @@
-input = File.read("input.txt").split("\n")
+input = File.readlines("input.txt")
 @width = input.size
 @height = input[0].size
 @grid = Set.new
@@ -63,6 +63,6 @@ puts "Part 1: #{path.size}"
 
 path.delete(@start)
 
-obstacles = path.map{|p| hasCycle?(p)}.count(true)
+obstacles = path.count{hasCycle?(it)}
 
 puts "Part 2: #{obstacles}"

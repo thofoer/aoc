@@ -1,5 +1,4 @@
-p File.read("input.txt")
-            .split("\n")
+p File.readlines("input.txt")            
             .map(&:split)
             .map{ |l| l.map(&:to_i) }
             .map{ |l| l.each_cons(2).map{|a, b| a - b} }
