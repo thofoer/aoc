@@ -33,11 +33,12 @@ def singlestep(pos, target, level)
            .map{it.concat(?A)}
 end
 
-def solve(code, maxdepth)
+def solve(code, maxlevel)
     $cache = {}
+    $MAX = maxlevel
 
-    def solveIter(code, maxdepth, level=0)
-        key = [code, level]  
+    def solveIter(code, level=0)
+        key = [code, level]          
         return $cache[key] if $cache[key]
 
         pos = startpos(level)
@@ -45,14 +46,14 @@ def solve(code, maxdepth)
         length = 0
         code.chars.each do |c|
             seq = singlestep(pos, pad[c], level)
-            length += maxdepth == level ? seq.first.length 
-                                        : seq.map{ |s| solveIter(s, maxdepth, level+1)}.min
+            length += $MAX == level ? seq.first.length 
+                                    : seq.map{ solveIter(it, level+1)}.min
             pos = pad[c]
         end
         $cache[key] = length
         length
     end
-    solveIter(code, maxdepth) * code[0..2].to_i
+    solveIter(code) * code[0..2].to_i
 end
 
 p codes.sum{ solve(it,  2) }
