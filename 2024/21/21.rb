@@ -26,7 +26,7 @@ def singlestep(pos, target, level)
  
     (h+v).chars
            .permutation
-           
+           .to_a
            .uniq
            .reject{ |c| c.inject([pos]){ |a,m| a << a.last + DIRS[m]}.include?(forbidden) }
            .map(&:join)
