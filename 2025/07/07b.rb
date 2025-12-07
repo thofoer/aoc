@@ -3,8 +3,7 @@ start = Complex(GRID[0].index(?S), 0)
 MEM = {}
 
 def solve(pos) = 
-    MEM[pos] ||          
-    MEM[pos] = case
+    MEM[pos] ||= case
                 when pos.imag == GRID.size - 1 
                     1
                 when GRID[pos.imag+1][pos.real] == ?^
