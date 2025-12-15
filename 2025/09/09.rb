@@ -13,18 +13,15 @@ end
 def dump(grid)
     file = File.new("out.txt", "w")
     0.upto(500) do |y|
-        0.upto(500) do |x|
-            if grid.include?(point(x,y)) 
-                file.print "#"        
-            else
-                file.print "."
-            end
+        0.upto(500) do |x|        
+            file.print grid.include?([x,y]) ? ?# : ?.            
         end
         file.puts
     end
     file.close
 end
 
+# Yields all coordinates of a rectangle (transposed)
 def rect(a, b)
     (x1, y1), (x2, y2) = a, b
     x1, x2 = [x1, x2].minmax.map{transx(it)}
@@ -35,8 +32,8 @@ def rect(a, b)
     end
 end
 
-rs = sortedRects(nodes)
-puts "Part 1: #{size(rs.first)}"
+rects = sortedRects(nodes)
+puts "Part 1: #{size(rects.first)}"
 
 def makeGrid(nodes)
     grid = Set.new
@@ -46,12 +43,14 @@ def makeGrid(nodes)
     grid
 end
 
+# Make functions to transpose x and y coordinates 
+# from large coordinate system to compressed one
 def makeTransposeFunctions(nodes)
     xs, ys = nodes.transpose.map(&:uniq!).map(&:sort)
 
-    compx = xs.zip(1.step(by: 2)).to_a.to_h
-    compy = ys.zip(1.step(by: 2)).to_a.to_h
-    [lambda{ |x|compx[x] }, lambda{|y| compy[y] }]
+    mapx = xs.zip(1.step(by: 2)).to_h
+    mapy = ys.zip(1.step(by: 2)).to_h
+    [lambda{mapx[it]}, lambda{mapy[it]}]
 end
 
 def floodfill(grid, start)
@@ -59,19 +58,19 @@ def floodfill(grid, start)
     py = transy(start[1])
     queue = []
     queue << [px+1, py+1]
-
+    
     until queue.empty?
         n = queue.pop
-            
-        n1 = [n[0],n[1]+1]
-        n2 = [n[0]+1,n[1]]
-        n3 = [n[0]-1,n[1]]
-        n4 = [n[0],n[1]-1]
-        
-        (grid << n1; queue << n1) unless grid.include?(n1)
-        (grid << n2; queue << n2) unless grid.include?(n2)
-        (grid << n3; queue << n3) unless grid.include?(n3)
-        (grid << n4; queue << n4) unless grid.include?(n4)
+
+        [[n[0],   n[1]+1],
+         [n[0]+1, n[1]  ],
+         [n[0]-1, n[1]  ],
+         [n[0],   n[1]-1]]
+         .each do
+            next if grid.include?(it)    
+            grid << it
+            queue << it
+         end
     end
 end
 
@@ -80,7 +79,6 @@ $transxfunc, $transyfunc = makeTransposeFunctions(nodes)
 def transx(x) = $transxfunc.call(x)
 def transy(y) = $transyfunc.call(y)
 
-
 grid = makeGrid(nodes)
 
 minx  = nodes.map(&:first).min
@@ -88,6 +86,5 @@ start = nodes.select{ it.first == minx }.min_by(&:last)
 
 floodfill(grid, start)
 
-best = rs.find{ rect(*it).all?{grid.include?(it)}}
+best = rects.find{ rect(*it).all?{grid.include?(it)} }
 puts "Part 2: #{size(best)}"
-
