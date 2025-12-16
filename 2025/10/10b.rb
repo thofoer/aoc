@@ -1,83 +1,55 @@
-input = File.readlines("sample2.txt")
-            .map{ it.scan(/\[(.+)\] ([()\d, ]+) {(.*)}/)}
+input = File.readlines("input.txt")
+            .map{ it.scan(/([()\d, ]+) {(.*)}/)}
             .flatten(1)
-            .map{ |l,b,j| 
-                        [
-                            l.gsub(?.,?0).gsub(?#,?1).split("").map(&:to_i), 
-                            b.scan(/\((.+?)\)/).flatten.map{ it.split(?,).map{1 << it.to_i}.reduce(&:|)},
-                            j.split(?,).map(&:to_i)
+            .map{ |b,j| [ b.scan(/\((.+?)\)/).flatten.map{ it.split(?,).map(&:to_i)},
+                          j.split(?,).map(&:to_i)
                         ]
-            }
+                }
+
 def parity(jolts)  = jolts.map{ it.odd? ? 1 : 0}
 def value(pattern) = pattern.join.to_i(2)
-def bits(value)   = value.to_s(2).count(?1)
 
-def s(buttons, jolts)
+def solve(buttons, jolts)    
     $cache = {}
 
-    def solve1(buttons, pattern)
-        p "pattern=#{pattern}"
-        v = value(pattern)
-        
-        return $cache[v] if $cache.include?(v)
+    def togglepattern(buttons, pattern)
+        val = value(pattern)            
+        return $cache[val] if $cache.include?(val)
 
         res = []
-        s = buttons.size
+        bitcount = pattern.size
+        butcount = buttons.size
         
-        0.upto((2 ** s)-1).each do |c|        
-
-            #puts "c=#{c}"
-            z = 0
-            press = [0] * pattern.size
-            0.upto(s-1).each do |i|        
-                # puts "toggle #{c} #{1<<i} #{c&(1<<i)}  #{c&(1<<i) != 0} #{buttons[i]}"       
-                if c&(1<<i) != 0 
-                   
-                    z ^= buttons[i] 
-                    pattern.size.times do |j|
-                        if buttons[i] & (1<<j) != 0
-                            press[pattern.size-1-j] += 1
-                        end
+        (2 ** butcount).times do |c|     
+            z, but = 0, []            
+            butcount.times do |i|
+                if c&(1<<i) != 0                                 
+                    but << buttons[i]
+                    buttons[i].each do |b|                    
+                        z ^= (1 << bitcount-b-1)                    
                     end
                 end
             end
-             #gets
-            
-            if z == v
-              #   p "#{c.to_s(2)}  #{z}  #{v}"
-                res << [c,press]
-            end
-        end
-        res        
+            next unless z == val            
+            delta = 0.upto(bitcount-1).map{ but.flatten.count(it) }            
+            res << [but.size, delta]            
+        end    
+        $cache[val] = res        
     end
-                    
+
     def solve2(buttons, jolts)
         return 0 if jolts.all?(0)
-        par = parity(jolts)
-        res = solve1(buttons, par)        
-        #res = count.map{bits(it)}.min
-        # newjolts = jolts.zip(par).map{ it.inject(&:-)}
-        # f = 1
-        # while !newjolts.all?(0) && newjolts.all?(&:even?)
-        #     f *= 2
-        #     newjolts = newjolts.map{it/2}           
-        # end
-        # count.map{|z|
-
-        # }
         
-        
-        
-        # p "----->#{newjolts}"
-        # f*res + solve2(buttons, newjolts)
+        res = togglepattern(buttons, parity(jolts))   
+                .map{|count, delta| [count, jolts.zip(delta).map{|x,y| (x-y)/2}] }
+                .reject{|_, delta| delta.any?(&:negative?)} 
+                .map{|count, newjolts| count + 2*solve2(buttons,newjolts)}            
+                
+        res.min || Float::INFINITY
     end
-
     solve2(buttons, jolts)
-    
 end
 
+puts input.sum{solve(*it)}
 
-#p s(input[0][1],parity(input[0][0])) 
-p s(input[0][1],input[0][2]) 
-
-#puts input.sum {|l,b,j| s(b,parity(l)) }
+# Heavily inspired by https://www.reddit.com/r/adventofcode/comments/1pk87hl/2025_day_10_part_2_bifurcate_your_way_to_victory/
