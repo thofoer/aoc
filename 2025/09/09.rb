@@ -27,8 +27,9 @@ def rect(a, b)
     x1, x2 = [x1, x2].minmax.map{transx(it)}
     y1, y2 = [y1, y2].minmax.map{transy(it)}
     Enumerator.new do |yielder|
-        x1.upto(x2)      .each { yielder << [it, y1] << [it, y2] }        
-        (y1+1).upto(y2-1).each { yielder << [x1, it] << [x2, it] }         
+        x1.upto(x2)      .to_a.shuffle.each { yielder << [it, y1] << [it, y2] }        
+        (y1+1).upto(y2-1).to_a.shuffle.each { yielder << [x1, it] << [x2, it] }         
+       # (x1+1..x2-1).to_a.product((y1+1..y2-1).to_a).each { yielder << it}        
     end
 end
 
@@ -56,7 +57,9 @@ end
 def floodfill(grid, start)
     px = transx(start[0])
     py = transy(start[1])
-    queue = [[px+1, py+1]]
+    seed = [px+1, py+1]
+    grid << seed
+    queue = [seed]
     
     until queue.empty?
         n = queue.pop
