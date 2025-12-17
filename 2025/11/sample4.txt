@@ -1,0 +1,14 @@
+svr: aaa
+aaa: bbb ccc ddd uuu
+bbb: ggg
+ccc: ggg dac
+ddd: eee
+ggg: hhh
+eee: fff
+hhh: dac
+fff: dac
+xxx: bbb
+yyy: fff
+zzz: dac
+qqq: xxx
+uuu: dac
